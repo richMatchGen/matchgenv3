@@ -1,0 +1,32 @@
+import { useState } from "react";
+import { register, login, logout, getToken } from "./services/auth";
+import axios from "axios";
+
+export default function App() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(!!getToken());
+  const [showRegister, setShowRegister] = useState(false);
+
+  const handleRegister = async () => {
+    const response = await register(username, email, password);
+    if (response.success) {
+      setMessage("✅ Registration successful! Please login.");
+      setShowRegister(false);
+    } else {
+      setMessage("❌ " + response.error);
+    }
+  };
+
+  const handleLogin = async () => {
+    const response = await login(username, password);
+    if (response.success) {
+      setIsAuthenticated(true);
+      setMessage("✅ Login successful!");
+    } else {
+      setMessage("❌ Login failed: " + response.error);
+    }
+  };
+
