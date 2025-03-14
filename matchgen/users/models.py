@@ -10,6 +10,11 @@ class Club(models.Model):
     logo = models.ImageField(upload_to=club_logo_path, null=True, blank=True)
     primary_color = models.CharField(max_length=7, default="#000000")  # Hex color code
     secondary_color = models.CharField(max_length=7, default="#FFFFFF")
+    template_pack = models.CharField(
+        max_length=50,
+        choices=[("classic", "Modern"), ("classic", "Classic"), ("minimal", "Minimal")],
+        default="classic"
+    )
 
     def __str__(self):
         return self.name

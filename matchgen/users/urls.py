@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import DefaultRouter
-from .views import generate_starting_xi_graphic,login_user, register_user, user_profile, ClubViewSet, SocialAccountViewSet, generate_ai_caption, generate_graphic, link_twitter, get_message, get_protected_message, get_user_profile, update_user_profile, change_password, create_club,get_club,update_club,upload_club_logo, get_squad, add_player, create_match,update_starting_xi
+from .views import generate_starting_xi_graphic,login_user, register_user, user_profile, ClubViewSet, SocialAccountViewSet, generate_ai_caption, link_twitter, get_message, get_protected_message, get_user_profile, update_user_profile, change_password, create_club,get_club,update_club,upload_club_logo, get_squad, add_player, create_match,update_starting_xi
 
 router = DefaultRouter()
 router.register(r'clubs', ClubViewSet, basename='club')
@@ -15,7 +15,7 @@ urlpatterns = [
     path('profile/', user_profile, name='profile'),
     path('', include(router.urls)),  # Includes `/api/clubs/`
     path('generate-caption/', generate_ai_caption, name='generate_caption'),
-    path("generate-graphic/", generate_graphic, name="generate_graphic"),
+    # path("generate-graphic/", generate_graphic, name="generate_graphic"),
     path('link-twitter/', link_twitter, name='link_twitter'),
     path("protected/", get_protected_message, name="protected"),
     path("profile/", get_user_profile, name="user-profile"),

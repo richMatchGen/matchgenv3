@@ -17,6 +17,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .social_posting import post_to_twitter, post_to_facebook
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
+from django.contrib.staticfiles.finders import find
 import os
 
 from rest_framework.decorators import api_view
@@ -29,6 +30,8 @@ def get_user_profile(request):
     API to fetch user profile information.
     """
     user = request.user
+    print("user")
+    print(user)
     return Response({
         "username": user.username,
         "email": user.email,
@@ -71,16 +74,24 @@ def update_starting_xi(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(username=username, password=password)
-    if user:
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        })
-    return Response({'error': 'Invalid Credentials'}, status=400)
+    # Ensure JSON data is read correctly
+    email = request.data.get('email', None)
+    password = request.data.get('password', None)
+
+    if not email or not password:
+        return Response({'error': 'Email and password are required'}, status=400)
+
+    user = authenticate(username=email, password=password)  # Django uses `username`
+
+    if user is None:
+        return Response({'error': 'Invalid credentials'}, status=400)
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    })
+
 
 
 @api_view(['POST'])
@@ -188,7 +199,7 @@ def get_club(request):
     """
     API to fetch the logged-in user's club details.
     """
-    print(request.user.id)
+
 
     try:
         club = Club.objects.get(owner_id=request.user.id)
@@ -243,10 +254,12 @@ def upload_club_logo(request):
 @permission_classes([IsAuthenticated])
 def get_squad(request):
     """ Fetch squad for logged-in user's club """
+
     try:
         club = Club.objects.get(owner=request.user)
         players = Player.objects.filter(club=club)
         serializer = PlayerSerializer(players, many=True)
+
         return Response(serializer.data)
     except Club.DoesNotExist:
         return Response({"error": "Club not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -327,55 +340,54 @@ def generate_ai_caption(request):
     caption = "testing captions"
     return Response({"caption": caption})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def generate_graphic(request):
-
-    """
-    API to generate match graphics dynamically based on user selection.
-    """
-    try:
-        # User selects club and post type
-        club = request.data.get("club", "modern")  # Default template pack
-        template_type = request.data.get("template_type")  # fulltime, halftime, goal_alert, starting_xi
-
-        # Generate the correct filename
-        output_filename = f"{template_type}_{club}.png"
-        output_image = os.path.join(settings.MEDIA_ROOT, "generated", output_filename)
-
-        # Handle each post type separately
-        if template_type == "fulltime":
-            score = request.data.get("score", "0-0")
-            generate_fulltime(club, score, output_image)
-
-        elif template_type == "halftime":
-            score = request.data.get("score", "0-0")
-            generate_halftime(club, score, output_image)
-
-        elif template_type == "goal_alert":
-            goal_scorer = request.data.get("goal_scorer", "Unknown Player")
-            team = request.data.get("team", "Unknown Team")
-            minute = request.data.get("minute", "90")
-            generate_goal_alert(club, goal_scorer, team, minute, output_image)
-
-        elif template_type == "starting_xi":
-
-            team_name = request.data.get("team_name", "Unknown Team")
-            players = request.data.get("players", [])
-            generate_starting_xi(club, team_name, players, output_image)
-
-            print(players)
-            print("players above")
-        else:
-            return Response({"error": "Invalid template type."}, status=400)
-
-        return Response({
-            "image_url": f"http://127.0.0.1:8000/media/generated/{output_filename}",
-            "message": "✅ Graphic successfully created!"
-        })
-
-    except Exception as e:
-        return Response({"error": str(e)}, status=400)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def generate_graphic(request):
+#
+#     """
+#     API to generate match graphics dynamically based on user selection.
+#     """
+#     try:
+#         # User selects club and post type
+#         club = request.data.get("club", "classic")  # Default template pack
+#         template_type = request.data.get("template_type")  # fulltime, halftime, goal_alert, starting_xi
+#
+#         # Generate the correct filename
+#         output_filename = f"{template_type}_{club}.png"
+#         output_image = os.path.join(settings.MEDIA_ROOT, "generated", output_filename)
+#
+#         # Handle each post type separately
+#         if template_type == "fulltime":
+#             score = request.data.get("score", "0-0")
+#             generate_fulltime(club, score, output_image)
+#
+#         elif template_type == "halftime":
+#             score = request.data.get("score", "0-0")
+#             generate_halftime(club, score, output_image)
+#
+#         elif template_type == "goal_alert":
+#             goal_scorer = request.data.get("goal_scorer", "Unknown Player")
+#             team = request.data.get("team", "Unknown Team")
+#             minute = request.data.get("minute", "90")
+#             generate_goal_alert(club, goal_scorer, team, minute, output_image)
+#
+#         elif template_type == "starting_xi":
+#
+#             team_name = request.data.get("team_name", "Unknown Team")
+#             players = request.data.get("players", [])
+#             generate_starting_xi(club, team_name, players, output_image)
+#
+#
+#         else:
+#             return Response({"error": "Invalid template type."}, status=400)
+#
+#         return Response({
+#             "image_url": f"http://127.0.0.1:8000/media/generated/{output_filename}",
+#             "message": "✅ Graphic successfully created!"
+#         })
+#
+#     except Exception as e:
+#         return Response({"error": str(e)}, status=400)
 
 
 
@@ -502,26 +514,62 @@ def generate_starting_xi_graphic(request):
     try:
         club = Club.objects.get(owner=request.user)
         players = request.data.get("players", [])  # Expecting a list of player names
+
+        if not players:
+            return Response({"error": "At least one player must be selected."}, status=status.HTTP_400_BAD_REQUEST)
+
         output_filename = f"starting_xi_{club.name.replace(' ', '_')}.png"
         output_image = os.path.join(settings.MEDIA_ROOT, output_filename)
 
         # Debugging Information
         print(f"🔍 Club: {club.name}")
+        print(f"🔍 Template Pack: {club.template_pack}")
         print(f"🔍 Players: {players}")
         print(f"🔍 Output Image: {output_image}")
 
         # Get Template Path
-        template_path = get_template_path(club.name, "starting_xi")
-        print(f"✅ Template Path: {template_path}")
+        template_path = find(f"templates/{club.template_pack}/starting_xi.png")
 
-        generate_starting_xi(club.name, players, output_image)
+        print(f"✅ Template Path: {template_path}")
+        if not template_path:
+            return Response({"error": f"Template not found for pack: {club.template_pack}"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+        # Generate the Starting XI Graphic
+        generate_starting_xi(template_path, club.name, players, output_image)
 
         return Response({
             "image_url": f"http://127.0.0.1:8000/media/{output_filename}",
             "message": "✅ Starting XI graphic successfully created."
         })
+
     except Club.DoesNotExist:
         return Response({"error": "Club not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(f"❌ API Error: {e}")  # Debugging
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def update_template_pack(request):
+    """
+    API to update the club's template pack.
+    """
+    try:
+        club = Club.objects.get(owner=request.user)
+        template_pack = request.data.get("template_pack")
+
+        if template_pack not in ["classic", "classic", "minimal"]:
+            return Response({"error": "Invalid template pack."}, status=status.HTTP_400_BAD_REQUEST)
+
+        club.template_pack = template_pack
+        club.save()
+
+        return Response({"message": "✅ Template pack updated successfully."})
+
+    except Club.DoesNotExist:
+        return Response({"error": "Club not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

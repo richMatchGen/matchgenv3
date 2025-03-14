@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 from django.conf import settings
-
+from shutil import copyfile
 import cv2
 import numpy as np
 
@@ -114,11 +114,11 @@ def get_template_path(club, template_type):
     Returns the correct template path based on the club's assigned template pack.
     """
     template_packs = {
-        "modern": {
-            "fulltime": "templates/modern/final_whistle.png",
-            "halftime": "templates/modern/halftime.png",
-            "goal_alert": "templates/modern/goal_alert.png",
-            "starting_xi": "templates/modern/starting_xi.png"
+        "classic": {
+            "fulltime": "templates/classic/final_whistle.png",
+            "halftime": "templates/classic/halftime.png",
+            "goal_alert": "templates/classic/goal_alert.png",
+            "starting_xi": "templates/classic/starting_xi.png"
         },
         "classic": {
             "fulltime": "templates/classic/final_whistle.png",
@@ -168,42 +168,40 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 
-def get_template_path(club_name, template_type):
-    """
-    Returns the correct template path based on the club's assigned template pack.
-    """
-    template_packs = {
-        "modern": {
-            "starting_xi": "templates/modern/starting_xi.png"
-        },
-        "classic": {
-            "starting_xi": "templates/classic/starting_xi.png"
-        }
-    }
-
-    # Example: Assign a default template pack if not specified (modify as needed)
-    template_pack = "modern"
-
-    # ✅ Construct the full template path
-    template_path = os.path.join(settings.STATICFILES_DIRS[0], template_packs[template_pack][template_type])
-
-    print(f"✅ Using Template: {template_path}")  # Debugging
-    return template_path
-
-
-def generate_starting_xi(club_name, players, output_image):
+# def get_template_path(club_name, template_type):
+#     """
+#     Returns the correct template path based on the club's assigned template pack.
+#     """
+#     template_packs = {
+#         "classic": {
+#             "starting_xi": "templates/classic/starting_xi.png"
+#         },
+#         "classic": {
+#             "starting_xi": "templates/classic/starting_xi.png"
+#         }
+#     }
+#
+#     # Example: Assign a default template pack if not specified (modify as needed)
+#     template_pack = "classic"
+#
+#     # ✅ Construct the full template path
+#     template_path = os.path.join(settings.STATICFILES_DIRS[0], template_packs[template_pack][template_type])
+#
+#     print(f"✅ Using Template: {template_path}")  # Debugging
+#     return template_path
+#
+#
+def generate_starting_xi(template_path, club_name, players, output_image):
     """
     Generates a Starting XI graphic based on the selected lineup.
     """
     try:
-        base_template = get_template_path(club_name, "starting_xi")
-
-        if not os.path.exists(base_template):
-            raise FileNotFoundError(f"❌ Template not found: {base_template}")
+        # Copy template to a writable location
+        copyfile(template_path, output_image)
 
         # Generate Text
         players_text = "\n".join(players)
-        add_text_to_image(base_template, f"{club_name} STARTING XI\n{players_text}", output_image, position=(300, 400), font_size=50)
+        add_text_to_image(output_image, f"{club_name} STARTING XI\n{players_text}", output_image, position=(300, 400), font_size=50)
 
         print(f"✅ Starting XI graphic saved: {output_image}")
     except Exception as e:

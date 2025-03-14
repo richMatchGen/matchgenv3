@@ -1,17 +1,13 @@
 import * as React from 'react';
-import { useState, useEffect } from "react";
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import AppNavbar from '../components/AppNavbar';
 import Header from '../components/Header';
-import MainGrid from '../components/MainGrid';
+import MainGrid from '../components/MinGrid';
 import SideMenu from '../components/SideMenu';
-import Categories from '../components/Categories';
 import AppTheme from '../themes/AppTheme';
-import { getProfile } from '../services/auth'; // Ensure this function exists
-
 import {
   chartsCustomizations,
   dataGridCustomizations,
@@ -26,25 +22,17 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 };
 
-
+    const handleAddPlayer = async () => {
+    await addPlayer(token, newPlayer);
+    setNewPlayer({ name: "", position: "" });
+  };
 
 export default function Dashboard(props) {
-  const [user, setUser] = useState(null); // ✅ Declare user state
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userData = getProfile(); // Get user data from auth service
-      setUser(userData); // ✅ Set user in state
-    };
-    fetchUser();
-  }, []);
-
-
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
       <Box>
-        <SideMenu/>
+        <SideMenu />
         <AppNavbar />
         {/* Main content */}
         <Box
@@ -68,7 +56,6 @@ export default function Dashboard(props) {
           >
             <Header />
             <MainGrid />
-            <Categories />
           </Stack>
         </Box>
       </Box>
@@ -78,11 +65,4 @@ export default function Dashboard(props) {
 
 
 
-// export default function Dashboard({ onLogout }) {
-//   return (
-//     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-//       <h1 className="text-4xl font-bold text-green-600">🎉 Welcome to the Dashboard!</h1>
-//       <button className="btn btn-error mt-6" onClick={onLogout}>Logout</button>
-//     </div>
-//   );
-// }
+

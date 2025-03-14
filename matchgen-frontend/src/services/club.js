@@ -2,12 +2,25 @@ import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000/api/users/";
 
-export const getClub = async (token) => {
-  console.log("🔍 Checking Token Before Request:", token);  // Debugging
-  return axios.get(`${API_URL}club/details/`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
+export async function getClub() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No authentication token found");
+    return null;
+  }
+  try {
+    const response = await axios.get(`${API_URL}club/details/`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ Attach token in headers
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching profile:", error.response?.data || error.message);
+    return null;
+  }
+}
 
 export const createClub = async (token, clubData) => {
   try {

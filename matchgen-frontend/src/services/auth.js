@@ -18,6 +18,19 @@ export const login = async (username, password) => {
   }
 };
 
+//export async function login(credentials) {
+//  try {
+//    const response = await axios.post(`${API_URL}login/`, credentials);
+//    localStorage.setItem("token", response.data.token); // ✅ Store token
+//    localStorage.setItem("user", JSON.stringify(response.data.user)); // ✅ Store user profile
+//    return response.data;
+//  } catch (error) {
+//    console.error("Login failed:", error.response?.data || error.message);
+//    return null;
+//  }
+//}
+
+
 export const logout = () => {
   localStorage.removeItem("token"); // ✅ Remove Token on Logout
 };
@@ -39,16 +52,50 @@ export const register = async (username, email, password) => {
   }
 };
 
-export const getProfile = async (token) => {
+//export const getProfile = async (token) => {
+//  try {
+//    const response = await axios.get(`${API_URL}profile/`, {
+//      headers: { Authorization: `Bearer ${token}` },
+//    });
+//    return { success: true, data: response.data };
+//  } catch (error) {
+//    return { success: false, error: error.response?.data?.error || "Error fetching profile." };
+//  }
+//};
+
+
+
+export async function getProfile() {
+  const token = localStorage.getItem("token"); // ✅ Retrieve token from localStorage
+  if (!token) {
+    console.error("No authentication token found");
+    return null;
+  }
+
   try {
     const response = await axios.get(`${API_URL}profile/`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ Attach token in headers
+        "Content-Type": "application/json",
+      },
     });
-    return { success: true, data: response.data };
+    return response.data;
   } catch (error) {
-    return { success: false, error: error.response?.data?.error || "Error fetching profile." };
+    console.error("Error fetching profile:", error.response?.data || error.message);
+    return null;
   }
-};
+}
+
+
+export function getUser() {
+  try {
+    const userData = localStorage.getItem("user");
+    return userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+}
 
 export const updateProfile = async (token, profileData) => {
   try {

@@ -63,6 +63,11 @@ INSTALLED_APPS = [
     'social_django',  # Django Social Auth
 ]
 
+# Set session expiration time (e.g., 30 minutes)
+SESSION_COOKIE_AGE = 30 * 60  # 30 minutes in seconds
+
+# Make session expire when the browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.twitter.TwitterOAuth',

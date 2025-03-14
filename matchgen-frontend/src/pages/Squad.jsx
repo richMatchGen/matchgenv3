@@ -33,18 +33,7 @@ export default function Squad() {
     setNewPlayer({ name: "", position: "" });
   };
 
-// //   return (
-//     <div>
-//       <h1>Squad Management</h1>
-//       {error && <p className="text-red-500">{error}</p>}
-//       <ul>
-//         {squad.map((player) => (
-//           <li key={player.id}>{player.name} - {player.position}</li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// // }
+
 
   return (
     <div>
