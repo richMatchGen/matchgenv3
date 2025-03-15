@@ -45,7 +45,10 @@ SECRET_KEY = 'django-insecure-l$+vq*7%9#i&--f_&aio*h3qo6encuxgytx9pgs1v2+6743u!_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    os.getenv("RAILWAY_URL", "your-default-fallback.com"),
+    "your-railway-url.up.railway.app"
+]
 
 
 # Application definition
