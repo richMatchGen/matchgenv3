@@ -144,7 +144,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'matchgenBackend.wsgi.application'
+WSGI_APPLICATION = 'matchgen.wsgi.application'
 
 
 # Database
