@@ -1,5 +1,5 @@
 """
-ASGI config for matchgenBackend project.
+ASGI config for matchgen project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
